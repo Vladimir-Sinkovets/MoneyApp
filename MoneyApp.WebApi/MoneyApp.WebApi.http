@@ -1,0 +1,6 @@
+@MoneyApp.WebApi_HostAddress = http://localhost:5073
+
+GET {{MoneyApp.WebApi_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
