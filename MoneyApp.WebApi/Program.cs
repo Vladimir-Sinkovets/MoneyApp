@@ -1,7 +1,12 @@
-
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using MoneyApp.Infrastructure.Implementation.Options;
+using MoneyApp.UseCases.DependencyInjection;
 using System.Text;
+using MoneyApp.DataAccess.MsSql;
+using MoneyApp.Infrastructure.Implementation.DependencyInjection;
+using MoneyApp.Infrastructure.Interfaces.DataAccess;
+using Microsoft.EntityFrameworkCore;
 
 namespace MoneyApp.WebApi
 {
@@ -24,12 +29,23 @@ namespace MoneyApp.WebApi
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = configuration["Jwt:Issuer"],
                         ValidAudience = configuration["Jwt:Audience"],
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"])),
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:Key"]!)),
                     };
                 });
 
-            builder.Services.AddMediatR(config => config.RegisterServicesFromAssemblyContaining<Program>());
+            builder.Services.Configure<JwtTokenOptions>(opt =>
+            {
+                opt.Issuer = configuration["Jwt:Issuer"]!;
+                opt.Audience = configuration["Jwt:Audience"]!;
+                opt.Key = configuration["Jwt:Key"]!;
+            });
 
+            builder.Services.AddDbContext<IDbContext, ApplicationDbContext>(opt =>
+                opt.UseSqlServer(configuration.GetConnectionString("MsSqlConnection")!));
+            
+            builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+            builder.Services.AddServices(); 
+            builder.Services.AddUseCases();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
