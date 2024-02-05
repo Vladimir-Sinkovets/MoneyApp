@@ -4,6 +4,6 @@ namespace MoneyApp.Infrastructure.Interfaces.Services
 {
     public interface ICurrentUserAccessor
     {
-        User? GetCurrentUser();
+        User GetCurrentUser();
     }
 }
