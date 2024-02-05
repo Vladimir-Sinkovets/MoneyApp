@@ -1,12 +1,13 @@
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using MoneyApp.Infrastructure.Implementation.Options;
-using MoneyApp.UseCases.DependencyInjection;
-using System.Text;
+using Microsoft.OpenApi.Models;
 using MoneyApp.DataAccess.MsSql;
 using MoneyApp.Infrastructure.Implementation.DependencyInjection;
+using MoneyApp.Infrastructure.Implementation.Options;
 using MoneyApp.Infrastructure.Interfaces.DataAccess;
-using Microsoft.EntityFrameworkCore;
+using MoneyApp.UseCases.DependencyInjection;
+using System.Text;
 
 namespace MoneyApp.WebApi
 {
@@ -33,6 +34,34 @@ namespace MoneyApp.WebApi
                     };
                 });
 
+            builder.Services.AddSwaggerGen(option =>
+            {
+                option.SwaggerDoc("v1", new OpenApiInfo { Title = "Demo API", Version = "v1" });
+                option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+                {
+                    In = ParameterLocation.Header,
+                    Description = "Please enter a valid token",
+                    Name = "Authorization",
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer"
+                });
+                option.AddSecurityRequirement(new OpenApiSecurityRequirement
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference
+                            {
+                                Type=ReferenceType.SecurityScheme,
+                                Id="Bearer"
+                            }
+                        },
+                        new string[]{}
+                    }
+                });
+            });
+
             builder.Services.Configure<JwtTokenOptions>(opt =>
             {
                 opt.Issuer = configuration["Jwt:Issuer"]!;
@@ -42,15 +71,22 @@ namespace MoneyApp.WebApi
 
             builder.Services.AddDbContext<IDbContext, ApplicationDbContext>(opt =>
                 opt.UseSqlServer(configuration.GetConnectionString("MsSqlConnection")!));
-            
+
             builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
-            builder.Services.AddServices(); 
+            builder.Services.AddServices();
             builder.Services.AddUseCases();
             builder.Services.AddControllers();
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
 
             var app = builder.Build();
+
+            //using var scope = app.Services.CreateScope();
+
+            //scope.ServiceProvider
+            //    .GetRequiredService<ApplicationDbContext>()
+            //    .Database
+            //    .Migrate();
 
             if (app.Environment.IsDevelopment())
             {

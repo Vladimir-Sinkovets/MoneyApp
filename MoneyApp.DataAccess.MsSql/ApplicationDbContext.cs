@@ -8,6 +8,7 @@ namespace MoneyApp.DataAccess.MsSql
     {
         public DbSet<User> Users { get; set; }
         public DbSet<Session> Sessions { get; set; }
+        public DbSet<Record> Records { get; set; }
 
         async Task IDbContext.SaveChangesAsync()
         {
@@ -17,37 +18,63 @@ namespace MoneyApp.DataAccess.MsSql
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<User>().ToTable("Users");
-            modelBuilder.Entity<User>().HasKey(x => x.Id);
-            modelBuilder.Entity<User>().Property(x => x.Id)
-                .IsRequired();
-            modelBuilder.Entity<User>().Property(x => x.Password)
-                .IsRequired();
-            modelBuilder.Entity<User>().Property(x => x.Email)
-                .IsRequired()
-                .HasMaxLength(50);
-            modelBuilder.Entity<User>().Property(x => x.UserName)
-                .IsRequired()
-                .HasMaxLength(50);
-            modelBuilder.Entity<User>().Property(x => x.Role)
-                .IsRequired();
+            modelBuilder.Entity<User>(user =>
+            {
+                user.ToTable("Users");
+                user.HasKey(x => x.Id);
+                user.Property(x => x.Id)
+                    .IsRequired();
+                user.Property(x => x.Password)
+                    .IsRequired();
+                user.Property(x => x.Email)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                user.Property(x => x.UserName)
+                    .IsRequired()
+                    .HasMaxLength(50);
+                user.Property(x => x.Role)
+                    .IsRequired();
+            });
 
-            modelBuilder.Entity<Session>().ToTable("Sessions");
-            modelBuilder.Entity<Session>().HasKey(x => x.Id);
-            modelBuilder.Entity<Session>().Property(x => x.Id)
-                .IsRequired();
-            modelBuilder.Entity<Session>().Property(x => x.App)
-                .IsRequired();
-            modelBuilder.Entity<Session>().Property(x => x.Expires)
-                .IsRequired();
-            modelBuilder.Entity<Session>().Property(x => x.Created)
-                .IsRequired();
-            modelBuilder.Entity<Session>().Property(x => x.RefreshToken)
-                .IsRequired();
-            modelBuilder.Entity<Session>()
-                .HasOne(x => x.User)
-                .WithMany(x => x.Sessions)
-                .HasForeignKey(x => x.UserId);
+            modelBuilder.Entity<Session>(session =>
+            {
+                session.ToTable("Sessions");
+                session.HasKey(x => x.Id);
+                session.Property(x => x.Id)
+                    .IsRequired();
+                session.Property(x => x.App)
+                    .IsRequired();
+                session.Property(x => x.Expires)
+                    .IsRequired();
+                session.Property(x => x.Created)
+                    .IsRequired();
+                session.Property(x => x.RefreshToken)
+                    .IsRequired();
+                session
+                    .HasOne(x => x.User)
+                    .WithMany(x => x.Sessions)
+                    .HasForeignKey(x => x.UserId);
+            });
+
+            modelBuilder.Entity<Record>(record =>
+            {
+                record.ToTable("Records");
+                record.HasKey(x => x.Id);
+                record.Property(x => x.Id)
+                    .IsRequired();
+                record.Property(x => x.Change)
+                    .HasPrecision(18, 4);
+                record.Property(x => x.Created)
+                    .IsRequired();
+                record.Property(x => x.Text)
+                    .HasMaxLength(500);
+                record.Property(x => x.UserId)
+                    .IsRequired();
+                record
+                    .HasOne(x => x.User)
+                    .WithMany(x => x.Records)
+                    .HasForeignKey(x => x.UserId);
+            });
 
             base.OnModelCreating(modelBuilder);
         }

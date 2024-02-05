@@ -8,5 +8,6 @@
         public string Email { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public ICollection<Session> Sessions { get; set; }
+        public ICollection<Record> Records { get; set; }
     }
 }
