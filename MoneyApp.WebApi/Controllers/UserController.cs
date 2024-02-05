@@ -5,7 +5,7 @@ using MoneyApp.Infrastructure.Interfaces.DataAccess;
 using MoneyApp.UseCases.Handlers.Sessions.Commands.RefreshSession;
 using MoneyApp.UseCases.Handlers.Users.Commands.LoginUser;
 using MoneyApp.UseCases.Handlers.Users.Commands.RegisterUser;
-using MoneyApp.WebApi.Models;
+using MoneyApp.WebApi.Models.User;
 using System.Text;
 
 namespace MoneyApp.WebApi.Controllers

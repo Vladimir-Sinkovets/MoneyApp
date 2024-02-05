@@ -1,4 +1,4 @@
-﻿namespace MoneyApp.WebApi.Models
+﻿namespace MoneyApp.WebApi.Models.User
 {
     public class RegisterUser
     {

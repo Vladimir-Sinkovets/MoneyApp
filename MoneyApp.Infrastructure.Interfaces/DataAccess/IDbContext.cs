@@ -7,6 +7,7 @@ namespace MoneyApp.Infrastructure.Interfaces.DataAccess
     {
         DbSet<User> Users {  get; }
         DbSet<Session> Sessions {  get; }
+        DbSet<Record> Records {  get; }
         Task SaveChangesAsync();
     }
 }
